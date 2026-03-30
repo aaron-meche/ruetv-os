@@ -54,36 +54,43 @@
 
     function runCmdInput(command) {
         let splitWord = command.trim().split(" ")
-        let firstWord = splitWord?.[0]
-        let secondWord = splitWord?.[1]
-        let thirdWord = splitWord?.[2]
-        let fourthWord = splitWord?.[3]
 
-        if (firstWord == "boot") {
-            enterSystemMode(1)
-            return "Boot initiated..."
+        const commandTree = {
+            "boot": () => {
+                enterSystemMode(1)
+                return "Boot initiated..."
+            },
+            "sys": {
+                "boot": {
+                    "allow": () => {
+                        sysobj.update(obj => { obj.boot.allow = 1; return obj })
+                        return "System Boot Enabled"
+                    },
+                    "deny": () => {
+                        sysobj.update(obj => { obj.boot.allow = 0; return obj })
+                        return "System Boot Disabled" 
+                    }
+                },
+                "mode": {
+                    "0": () => {
+                        enterSystemMode(0)
+                        return "System set to mode 0"
+                    },
+                    "1": () => {
+                        enterSystemMode(1)
+                        return "System set to mode 1"
+                    }
+                },
+            }
         }
-        else if (firstWord == "sys" || firstWord == "system") {
-            if (secondWord == "mode" || secondWord == "setmode") {
-                if (thirdWord == "0" || thirdWord == "boot") {
-                    enterSystemMode(0)
-                    return "System set to mode 0"
-                }
-                else if (thirdWord == "1" || thirdWord == "client") {
-                    enterSystemMode(1)
-                    return "System set to mode 1"
-                }
-            }
-            else if (secondWord == "allowboot" || secondWord == "boot.allow") {
-                sysobj.update(obj => { obj.boot.allow = 1; return obj })
-                return "System Boot Enabled"
-            }
-            else if (secondWord == "denyboot" || secondWord == "boot.deny") {
-                sysobj.update(obj => { obj.boot.allow = 0; return obj })
-                return "System Boot Disabled"
-            }
+
+        let root = commandTree
+        for (let i = 0; i < splitWord.length; i++) {
+            root = root?.[splitWord[i]]
+            if (!root) return false
         }
-        return false
+        if (root)   return root()
+        else        return false
     }
 
     function updateCommandValue(val) {
@@ -194,11 +201,6 @@
         opacity: 0;
     }
 
-    .screen.idle{ 
-        left: -100vw;
-        background: linear-gradient(to bottom right, rgb(40 40 40), rgb(20 20 20));
-    }
-
     .screen.boot{
         display: grid;
         align-items: center;
@@ -207,23 +209,6 @@
 
     .screen.client{ 
         left: 100vw;
-    }
-
-    .progress{
-        height: 0.4rem;
-        width: 24rem;
-        margin-top: 1.8rem;
-        background: rgb(40 40 40);
-        outline: solid 1pt rgb(80 80 80);
-        border-radius: 100vh;
-        overflow: hidden;
-
-        .value{
-            height: 100%;
-            max-width: 100%;
-            background: rgb(80 80 80);
-            transition: width 600ms cubic-bezier(0.86, 0, 0.07, 1);
-        }
     }
 
 </style>

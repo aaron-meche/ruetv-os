@@ -8,7 +8,7 @@
 
 import { writable } from 'svelte/store'
 
-const app_title = "myapp_0.0.0"
+const app_title = "rueTV_OS_0.00"
 const storage_ref = `ldb-${app_title}`
 
 let initial_db = {
@@ -38,7 +38,7 @@ const storage = {
 export const db = storage.exists(storage_ref) ? writable(JSON.parse(storage.read(storage_ref))) : writable(initial_db)
 export const sysobj = writable({
     boot: {
-        auto: true,
+        auto: false,
         allow: true,
         active: false,
     }
@@ -48,7 +48,6 @@ export const error = writable(null)
 export function throwError(errorToThrow) {
     error.update(err => {
         if (!err) err = []
-        // if (!err.includes(errorToThrow)) 
         err.push(errorToThrow)
         return err
     })
