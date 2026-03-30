@@ -3,12 +3,14 @@
     import { onMount } from "svelte";
     import { 
         sysobj,
-        cmd, error,
-        throwError
+        cmd, error, result,
+        throwError, throwResult,
+        startClock
     } from "$lib/data"
-    import Logo from "./Logo.svelte";
     import { goto } from "$app/navigation";
-    import Home from "./app/Home.svelte";
+    import Clock from "$lib/components/Clock.svelte";
+    import Boot from "./Boot.svelte";
+    import App from "./App.svelte";
 
     let app, sys,
         autoBoot, isBootable, 
@@ -30,26 +32,27 @@
                 throwError("System is not currently bootable.")
                 return
             }
-            sysobj.update(obj => {
-                obj.boot.active = 1;
-                return obj
-            })
             sys.style.left = "-100vw"
             sys.style.opacity = "0"
             app.style.left = "0"
             app.style.opacity = "1"
+            sysobj.update(obj => {
+                obj.boot.active = 1;
+                return obj
+            })
         }
         // 0 ==> System Boot Mode
         else if (mode == 0) {
-            sysobj.update(obj => {
-                obj.boot.active = 0;
-                return obj
-            })
             sys.style.left = "0"
             sys.style.opacity = "1"
             app.style.left = "100vw"
             app.style.opacity = "0"
+            sysobj.update(obj => {
+                obj.boot.active = 0;
+                return obj
+            })
         }
+        return 1
     }
 
     function runCmdInput(command) {
@@ -57,30 +60,47 @@
 
         const commandTree = {
             "boot": () => {
-                enterSystemMode(1)
-                return "Boot initiated..."
+                if (activeOpenClient) return "System is already booted!"
+                if (enterSystemMode(1)) return "System booting..."
+                return "System Boot: Disabled"
             },
             "sys": {
                 "boot": {
                     "allow": () => {
+                        if (isBootable) return "System Boot is already Allowed"
                         sysobj.update(obj => { obj.boot.allow = 1; return obj })
                         return "System Boot Enabled"
                     },
                     "deny": () => {
+                        if (!isBootable) return "System Boot is already Disabled"
                         sysobj.update(obj => { obj.boot.allow = 0; return obj })
                         return "System Boot Disabled" 
-                    }
+                    },
+                    "enable": () => { return runCmdInput("sys boot allow") },
+                    "disable": () => { return runCmdInput("sys boot deny") },
                 },
                 "mode": {
                     "0": () => {
-                        enterSystemMode(0)
-                        return "System set to mode 0"
+                        if (!activeOpenClient) return "System mode is already set to 0"
+                        if (enterSystemMode(0)) return "System mode set to 0"
                     },
                     "1": () => {
-                        enterSystemMode(1)
-                        return "System set to mode 1"
-                    }
+                        if (activeOpenClient) return "System mode is already set to 1"
+                        if (enterSystemMode(1)) return "System mode set to 1"
+                    },
+                    "boot": () => { return runCmdInput("sys mode 0") },
+                    "app": () => { return runCmdInput("sys mode 1") },
                 },
+            },
+            "clear": () => {
+                return "Cleared"
+            },
+            "restart": () => {
+                window.location.reload()
+                return "Reloading Client..."
+            },
+            "reload": () => {
+                return commandTree.restart()
             }
         }
 
@@ -103,7 +123,11 @@
     }
 
     function resetBootScreen() {
-        if (allowCmdTextInput) return
+        // if (allowCmdTextInput) return
+        result.update(val => {
+            val = null
+            return val
+        })
         error.update(val => {
             val = null
             return val
@@ -115,20 +139,12 @@
         allowCmdTextInput = true
     }
 
-    function handleCmdTextInput(code) {
-        if (!allowCmdTextInput) {
-            resetBootScreen()
-        }
+    function handleTextInput(event) {
+        let code = event.code
+        let key = event.key
+        if (!allowCmdTextInput) resetBootScreen()
         
-        if (code[0] == "K") 
-            updateCommandValue(code[3].toLowerCase())
-        else if (code[0] == "D") 
-            updateCommandValue(code[5])
-        else if (code == "Period") 
-            updateCommandValue(".")
-        else if (code == "Space") 
-            updateCommandValue(" ")
-        else if (code == "Backspace") {
+        if (code == "Backspace") {
             cmd.update(cmd => {
                 if (!cmd) return
                 let splitCmd = cmd.split("")
@@ -143,37 +159,44 @@
                 if (!val) return
                 allowCmdTextInput = false
                 let cmdOutput = runCmdInput(val)
-                if (cmdOutput) {
-                    val = cmdOutput
-                }
-                else {
-                    val = "Invalid Command"
-                }
+                if (cmdOutput) 
+                    throwResult(cmdOutput)
+                else 
+                    throwError("Invalid Command")
                 setTimeout(resetBootScreen, 1000)
                 return val
             })
+        }
+        else if (key.length > 1) {
+            return
+        }
+        else {
+            updateCommandValue(key)
         }
     }
 
     function handleKeydown(event) {
         let code = event.code
-        // console.log(code)
 
         if (code == "Backquote") {
             enterSystemMode(!activeOpenClient)
         }
-        else if (code == "ControlLeft") {
+        else if (event.code == "ControlLeft") {
+            console.log("clear")
             resetBootScreen()
         }
-        else if (!activeOpenClient) {
-            handleCmdTextInput(code)
+        else {
+            handleTextInput(event)
         }
     }
 
+    let currTime = ""
+
     // Boot Sequence
     onMount(() => {
-        enterSystemMode(0)
-        setTimeout(() => { if (autoBoot) enterSystemMode(1) }, 1200)
+        startClock()
+        setTimeout(() => { enterSystemMode(0) }, 500)
+        setTimeout(() => { if (autoBoot) enterSystemMode(1) }, 2000)
     })
 </script>
 
@@ -183,11 +206,11 @@
 
 <!-- Boot Screen -->
 <div class="boot screen" bind:this={sys}>
-    <Logo />
+    <Boot />
 </div>
 <!-- Client Screen -->
 <div class="client screen" bind:this={app}>
-    <Home />
+    <App />
 </div>
 
 <!--  -->
@@ -197,7 +220,7 @@
         position: fixed;
         height: 100vh;
         width: 100vw;
-        transition: opacity 800ms, left 800ms;
+        transition: opacity 750ms, left 750ms;
         opacity: 0;
     }
 

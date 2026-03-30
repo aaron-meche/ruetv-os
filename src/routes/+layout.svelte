@@ -1,8 +1,6 @@
 <script>
 	import '$lib/main.css';
 	import '$lib/main.rue';
-    import LeftBar from '$lib/components/LeftBar.svelte';
-    import TopBar from '$lib/components/TopBar.svelte';
 	let { children } = $props();
 
 </script>
