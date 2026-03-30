@@ -46,6 +46,23 @@ export const sysobj = writable({
     },
     notifs: []
 })
+export const ui = writable({
+    active_wallpaper: 0,
+    wallpapers: [
+        "Castle", 
+        "Autumn",
+        "Hill",
+        "Marsh",
+        "Ship",
+        "Wilderness",
+        "RollingHills",
+        "WaterCastle",
+        "Canal",
+        "DramaticWaterside",
+        "WaterWar",
+        "WhiteHouse"
+    ]
+})
 export const cmd = writable(null)
 export const error = writable(null)
 export const result = writable(null)

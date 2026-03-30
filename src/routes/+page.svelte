@@ -3,7 +3,7 @@
     import { onMount } from "svelte";
     import { 
         sysobj,
-        cmd, error, result,
+        ui, cmd, error, result,
         throwError, throwResult,
         startClock
     } from "$lib/data"
@@ -32,7 +32,7 @@
                 throwError("System is not currently bootable.")
                 return
             }
-            sys.style.top = "-100vw"
+            sys.style.top = "-100vh"
             sys.style.opacity = "0"
             app.style.top = "0"
             app.style.opacity = "1"
@@ -45,7 +45,7 @@
         else if (mode == 0) {
             sys.style.top = "0"
             sys.style.opacity = "1"
-            app.style.top = "100vw"
+            app.style.top = "100vh"
             app.style.opacity = "0"
             sysobj.update(obj => {
                 obj.boot.active = 0;
@@ -180,16 +180,45 @@
     function handleKeydown(event) {
         let code = event.code
 
-        if (code == "Backquote") {
+        // Switch System Mode
+        if (code == "Backquote") 
             enterSystemMode(!activeOpenClient)
-        }
-        else if (event.code == "ControlLeft") {
-            console.log("clear")
+        // Clear Screen
+        else if (event.code == "ControlLeft" || event.code == "Escape") 
             resetBootScreen()
+        else if (event.code == "ArrowUp") {
+            setTimeout(resetBootScreen, 1000)
         }
-        else {
+        else if (event.code == "ArrowDown") {
+            setTimeout(resetBootScreen, 1000)
+        }
+        else if (event.code == "ArrowLeft") {
+            ui.update(val => {
+                if (val.active_wallpaper == 0) {
+                    throwError("Minimum Wallpaper Reached")
+                }
+                else {
+                    val.active_wallpaper--
+                }
+                return val
+            })
+            setTimeout(resetBootScreen, 1000)
+        }
+        else if (event.code == "ArrowRight") {
+            ui.update(val => {
+                if (val.active_wallpaper == val.wallpapers.length - 1) {
+                    throwError("Maximum Wallpaper Reached")
+                }
+                else {
+                    val.active_wallpaper++
+                }
+                return val
+            })
+            setTimeout(resetBootScreen, 1000)
+        }
+        // Input Text
+        else 
             handleTextInput(event)
-        }
     }
 
     let currTime = ""
@@ -222,7 +251,7 @@
         position: fixed;
         height: 100vh;
         width: 100vw;
-        transition: opacity 750ms, top 750ms;
+        transition: opacity 750ms cubic-bezier(0.645, 0.045, 0.355, 1), top 750ms cubic-bezier(0.645, 0.045, 0.355, 1);
         opacity: 0;
     }
 

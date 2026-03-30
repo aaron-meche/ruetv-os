@@ -1,7 +1,7 @@
 <!-- created by Aaron Meche -->
 <script>
     import { onMount } from "svelte";
-    import { time, date, result, error, cmd } from "$lib/data"
+    import { time, date, result, error, cmd, ui } from "$lib/data"
 
     let notifs = []
     let timeString = null
@@ -9,6 +9,7 @@
     let currResult = null
     let currError = null
     let currCmd = null
+    let currWallpaper = null
     time.subscribe(val => {
         timeString = val
     })    
@@ -24,11 +25,16 @@
     cmd.subscribe(val => {
         currCmd = val
     })
+    ui.subscribe(val => {
+        currWallpaper = val.wallpapers[val.active_wallpaper]
+    })
 </script>
 
 <!--  -->
 
 <div class="app"> 
+    <div class="background" style={"background: url('WP_" + currWallpaper + ".jpeg') no-repeat; background-size: cover;"}></div>
+
     <div class="top module">
         <div class="time">{timeString}</div>
         <div class="date">{dateString}</div>
@@ -67,8 +73,12 @@
         position: relative;
         height: 100%;
         width: 100%;
-        background: url('WP_Castle.jpeg') no-repeat;
-        background-size: cover;
+    }
+
+    .background{
+        position: absolute;
+        height: 100%;
+        width: 100%;
     }
 
     .module{
