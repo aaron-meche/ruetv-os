@@ -36,6 +36,23 @@ const storage = {
 }
 
 export const db = storage.exists(storage_ref) ? writable(JSON.parse(storage.read(storage_ref))) : writable(initial_db)
+export const sysobj = writable({
+    boot: {
+        auto: true,
+        allow: true,
+        active: false,
+    }
+})
+export const cmd = writable(null)
+export const error = writable(null)
+export function throwError(errorToThrow) {
+    error.update(err => {
+        if (!err) err = []
+        // if (!err.includes(errorToThrow)) 
+        err.push(errorToThrow)
+        return err
+    })
+}
 
 export const clearDB = () => {
     db.update(data => {
