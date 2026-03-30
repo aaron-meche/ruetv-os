@@ -1,0 +1,103 @@
+def hue: 240;
+def sat: 8%;
+def strt: 6%;
+def diff: -6%;
+
+func getLayer(layer = 0, extraSat = 0, extraLight = 0) {
+    let hue = 212;
+    let sat = 22
+    let satDiff = 6
+    let light = 8;
+    let lightDiff = 6
+    return `hsl(${hue}, ${sat + (Number(extraSat) || 0) + (layer * satDiff)}%, ${light + (Number(extraLight)) + (layer * lightDiff)}%)`;
+}
+
+def l0: getLayer(0);
+def l05: getLayer(0.5);
+def l1: getLayer(1);
+def l2: getLayer(2);
+def l3: getLayer(3);
+def l4: getLayer(4);
+def l5: getLayer(5);
+def l6: getLayer(6);
+
+def la0: getLayer(0, 16);
+def la05: getLayer(0.5, 16);
+def la1: getLayer(1, 16);
+def la2: getLayer(2, 16);
+def la3: getLayer(3, 16);
+def la4: getLayer(4, 16);
+def la5: getLayer(5, 16);
+def la6: getLayer(6, 16);
+
+def lb0: getLayer(0, 0, 4);
+def lb05: getLayer(0.5, 0, 4);
+def lb1: getLayer(1, 0, 4);
+def lb2: getLayer(2, 0, 4);
+def lb3: getLayer(3, 0, 4);
+def lb4: getLayer(4, 0, 4);
+def lb5: getLayer(5, 0, 4);
+def lb6: getLayer(6, 0, 4);
+
+def soft-accent: hsl(212, 50%, 40%);
+def accent: hsl(212, 75%, 50%);
+def accent-low: hsl(212, 75%, 50%, 4%);
+def bright-accent: hsl(212, 75%, 65%);
+def warning: #ca0000;
+def contrast: white;
+
+def inline-moat: 8vw;
+
+body{
+    height: 100%;
+    margin: 0;
+    background: black;
+    font-size: 1rem;
+    font-family: Figtree;
+    color: var(--contrast);
+}
+
+a,button,input{
+    all: unset;
+    display: block;
+}
+
+.horizontal-scroll{
+    display: flex;
+    background: none;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    font-size: 0;
+    white-space: nowrap;
+}
+.horizontal-scroll > *{
+    display: inline-block;
+    font-size: initial;
+}
+.horizontal-scroll::-webkit-scrollbar{
+    display: none;
+}
+.horizontal-scroll::-moz-progress-bar{
+    display: none;
+}
+
+
+/* Red Alert */
+.alert{
+    padding: 0.8rem 1.2rem;
+    margin-bottom: 1.2rem;
+    background: hsl(0, 50%, 20%, 50%);
+    outline: solid 2pt hsl(0, 50%, 40%);
+    border-radius: 0.4rem;
+    line-height: 1.5;
+}
+
+/* Orange Warning */
+.warning{
+    padding: 0.8rem 1.2rem;
+    margin-bottom: 1.2rem;
+    background: hsl(30, 50%, 20%, 50%);
+    outline: solid 2pt hsl(30, 50%, 40%);
+    border-radius: 0.4rem;
+    line-height: 1.5;
+}
