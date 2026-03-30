@@ -106,7 +106,7 @@
     }
 
     .bottom-module{
-        position: absolute;
+        position: fixed;
         bottom: 0;
         padding-block: 2.4rem;
         width: 100vw;

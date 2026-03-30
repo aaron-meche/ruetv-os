@@ -32,9 +32,9 @@
                 throwError("System is not currently bootable.")
                 return
             }
-            sys.style.left = "-100vw"
+            sys.style.top = "-100vw"
             sys.style.opacity = "0"
-            app.style.left = "0"
+            app.style.top = "0"
             app.style.opacity = "1"
             sysobj.update(obj => {
                 obj.boot.active = 1;
@@ -43,9 +43,9 @@
         }
         // 0 ==> System Boot Mode
         else if (mode == 0) {
-            sys.style.left = "0"
+            sys.style.top = "0"
             sys.style.opacity = "1"
-            app.style.left = "100vw"
+            app.style.top = "100vw"
             app.style.opacity = "0"
             sysobj.update(obj => {
                 obj.boot.active = 0;
@@ -99,8 +99,10 @@
                 window.location.reload()
                 return "Reloading Client..."
             },
-            "reload": () => {
-                return commandTree.restart()
+            "reload": () => { return runCmdInput("restart") },
+            "r": () => { return runCmdInput("restart") },
+            "version": () => {
+                return "rueTV OS Version 0.0.1"
             }
         }
 
@@ -220,7 +222,7 @@
         position: fixed;
         height: 100vh;
         width: 100vw;
-        transition: opacity 750ms, left 750ms;
+        transition: opacity 750ms, top 750ms;
         opacity: 0;
     }
 
@@ -228,10 +230,11 @@
         display: grid;
         align-items: center;
         justify-content: center;
+        background: linear-gradient(to top right, rgb(20 20 20), transparent);
     }
 
     .screen.client{ 
-        left: 100vw;
+        top: 100vw;
     }
 
 </style>

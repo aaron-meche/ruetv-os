@@ -94,6 +94,7 @@
     }
 
     .bottom.module{
+        position: fixed;
         bottom: 0;
 
         .notif-stack{
