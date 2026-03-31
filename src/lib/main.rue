@@ -55,6 +55,7 @@ body{
     font-size: 1rem;
     font-family: Figtree;
     color: var(--contrast);
+    cursor: none;
 }
 
 a,button,input{
