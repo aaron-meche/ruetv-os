@@ -187,10 +187,8 @@
         else if (event.code == "ControlLeft" || event.code == "Escape") 
             resetBootScreen()
         else if (event.code == "ArrowUp") {
-            setTimeout(resetBootScreen, 1000)
         }
         else if (event.code == "ArrowDown") {
-            setTimeout(resetBootScreen, 1000)
         }
         else if (event.code == "ArrowLeft") {
             ui.update(val => {
@@ -202,7 +200,6 @@
                 }
                 return val
             })
-            setTimeout(resetBootScreen, 1000)
         }
         else if (event.code == "ArrowRight") {
             ui.update(val => {
@@ -214,7 +211,6 @@
                 }
                 return val
             })
-            setTimeout(resetBootScreen, 1000)
         }
         // Input Text
         else 
